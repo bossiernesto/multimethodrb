@@ -1,10 +1,3 @@
-class Array
-  def comprehend(&block)
-    return self if block.nil?
-    self.collect(&block).compact
-  end
-end
-
 class Class
   def multimethod(sym, &block)
     dispatcher = MultimethodDispatcher.new sym, &block
