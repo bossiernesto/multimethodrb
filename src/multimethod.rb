@@ -1,4 +1,4 @@
-class Class
+class Module
   def multimethod(sym, &block)
     dispatcher = MultimethodDispatcher.new sym, &block
     self.define_multimethod_instance sym, dispatcher
@@ -72,11 +72,11 @@ class MultimethodMethod
                           Proc => Proc.new { |value| ArgProc.new value },
                           Object => Proc.new { |value| ArgValue.new value }}
     arg_array.each do |arg|
-      self.process_value arg
+      self.process_argument arg
     end
   end
 
-  def process_value value
+  def process_argument value
     if value.nil?
       self.matchers << ArgNil.new(nil)
       return
@@ -89,7 +89,7 @@ class MultimethodMethod
     end
   end
 
-  def matches arguments
+  def matches(arguments)
     unless arguments.length == self.matchers.length
       return false
     end
@@ -127,7 +127,7 @@ end
 
 class ArgNil < MultimethodArg
   def matches(value_compare)
-    true
+    value_compare.nil?
   end
 end
 
