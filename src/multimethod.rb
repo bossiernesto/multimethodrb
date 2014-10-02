@@ -14,7 +14,7 @@ class Class
   end
 
   def define_multimethod_class(sym, dispatcher)
-     self.define_multimethod sym, dispatcher, :define_singleton_method
+    self.define_multimethod sym, dispatcher, :define_singleton_method
   end
 
   def define_multimethod(sym, dispatcher, method)
@@ -67,24 +67,23 @@ class MultimethodMethod
   def initialize(arg_array, &block)
     self.block = block
     self.matchers = []
-    self.matcher_types = {Class => ArgType, Proc => ArgProc, Object => ArgValue}
+    self.matcher_types = {ArgDuck => Proc.new { |value| value },
+                          Class => Proc.new { |value| ArgType.new value },
+                          Proc => Proc.new { |value| ArgProc.new value },
+                          Object => Proc.new { |value| ArgValue.new value }}
     arg_array.each do |arg|
       self.process_value arg
     end
   end
 
   def process_value value
-    if value.is_a? ArgDuck
-      self.matchers << value
-      return
-    end
     if value.nil?
       self.matchers << ArgNil.new(nil)
       return
     end
     self.matcher_types.keys.each do |type|
       if value.is_a? type
-        self.matchers << self.matcher_types[type].new(value)
+        self.matchers << self.matcher_types[type].call(value)
         return
       end
     end
